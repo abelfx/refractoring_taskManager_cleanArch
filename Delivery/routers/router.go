@@ -24,16 +24,16 @@ func SetupRouter(taskCtrl *controllers.TaskController, userCtrl *controllers.Use
 
 	// Admin-only routes
 	admin := auth.Group("/")
-	admin.Use(infrastructure.AdminOnly(userUsecase))  // <-- pass instance here
+	admin.Use(infrastructure.AdminOnly(userUsecase)) 
 
 	admin.GET("/users", userCtrl.GetUsers)
 	admin.POST("/users/promote", userCtrl.PromoteUser)
 	admin.DELETE("/users/:id", userCtrl.DeleteUser)
 
 	// Other authenticated task routes
-	auth.PUT("/tasks/:id", taskCtrl.UpdateTask)
-	auth.DELETE("/tasks/:id", taskCtrl.DeleteTask)
-	auth.POST("/tasks", taskCtrl.AddTask)
+	auth.PUT("/tasks/:id", infrastructure.AdminOnly(userUsecase), taskCtrl.UpdateTask)
+	auth.DELETE("/tasks/:id", infrastructure.AdminOnly(userUsecase), taskCtrl.DeleteTask)
+	auth.POST("/tasks", infrastructure.AdminOnly(userUsecase), taskCtrl.AddTask)
 
 	return r
 }
